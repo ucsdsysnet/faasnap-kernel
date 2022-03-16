@@ -36,6 +36,8 @@ struct bdi_writeback;
 
 void init_mm_internals(void);
 
+extern int sanitize_freed_pages;
+
 #ifndef CONFIG_NEED_MULTIPLE_NODES	/* Don't use mapnrs, do it properly */
 extern unsigned long max_mapnr;
 

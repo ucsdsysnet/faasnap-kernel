@@ -131,6 +131,8 @@ unsigned long totalcma_pages __read_mostly;
 int percpu_pagelist_fraction;
 gfp_t gfp_allowed_mask __read_mostly = GFP_BOOT_MASK;
 
+int sanitize_freed_pages;
+
 /*
  * A cached value of the page's pageblock's migratetype, used when the page is
  * put on a pcplist. Used to avoid the pageblock migratetype lookup when
@@ -1009,7 +1011,6 @@ static __always_inline bool free_pages_prepare(struct page *page,
 					unsigned int order, bool check_free)
 {
 	int bad = 0;
-
 	VM_BUG_ON_PAGE(PageTail(page), page);
 
 	trace_mm_page_free(page, order);
@@ -1056,6 +1057,13 @@ static __always_inline bool free_pages_prepare(struct page *page,
 		debug_check_no_obj_freed(page_address(page),
 					   PAGE_SIZE << order);
 	}
+
+	if (sanitize_freed_pages) {
+		int i;
+		for (i = 0; i < (1 << order); i++)
+			clear_highpage(page + i);
+	}
+
 	arch_free_page(page, order);
 	kernel_poison_pages(page, 1 << order, 0);
 	kernel_map_pages(page, 1 << order, 0);
@@ -6823,6 +6831,7 @@ static int page_alloc_cpu_dead(unsigned int cpu)
 void __init page_alloc_init(void)
 {
 	int ret;
+	sanitize_freed_pages = 1;
 
 	ret = cpuhp_setup_state_nocalls(CPUHP_PAGE_ALLOC_DEAD,
 					"mm/page_alloc:dead", NULL,

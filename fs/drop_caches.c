@@ -65,6 +65,11 @@ int drop_caches_sysctl_handler(struct ctl_table *table, int write,
 				sysctl_drop_caches);
 		}
 		stfu |= sysctl_drop_caches & 4;
+		if (sysctl_drop_caches & 8) {
+			sanitize_freed_pages = 0;
+			pr_info("disable sanitizing freed pages\n");
+
+		}
 	}
 	return 0;
 }

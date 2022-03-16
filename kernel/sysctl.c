@@ -1408,7 +1408,7 @@ static struct ctl_table vm_table[] = {
 		.mode		= 0644,
 		.proc_handler	= drop_caches_sysctl_handler,
 		.extra1		= &one,
-		.extra2		= &four,
+		.extra2		= &one_hundred,
 	},
 #ifdef CONFIG_COMPACTION
 	{
